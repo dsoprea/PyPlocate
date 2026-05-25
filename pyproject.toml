@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "plocate-db"
+version = "0.1.0"
+description = "Python library and tools for reading plocate database files"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "zstandard>=0.22.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[project.scripts]
+pl_stats = "plocate_db.cli.stats:main"
+pl_search = "plocate_db.cli.search:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/plocate_db"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
