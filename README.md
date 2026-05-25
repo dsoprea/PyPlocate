@@ -4,6 +4,10 @@
 
 Python library and command-line tools for reading [plocate](https://plocate.sesse.net) database files (`plocate.db`), the default 'locate' implementation of Arch, Debian, Ubuntu, and other Linux distributions.
 
+This can enable an application to have immediate and optimized access to a reasonably up-to-date catalog of the complete filesystem and to *avoid the overhead of manually scanning every file*.
+
+This not only requires a Linux system that has *plocate* installed and running, but that you can wait, or manage the reality of having to wait, for the next plocate update before you can see new files.
+
 ## Installation
 
 ```bash
