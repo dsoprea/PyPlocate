@@ -1,10 +1,7 @@
 """Human-readable and JSON output formatting."""
 
-import logging
-
 import plocate.stats
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def _format_bytes(num_bytes: int) -> str:

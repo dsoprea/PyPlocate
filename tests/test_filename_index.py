@@ -1,6 +1,5 @@
 """Tests for plocate.filename_index."""
 
-import logging
 import struct
 
 import pytest
@@ -10,7 +9,6 @@ import plocate.errors
 import plocate.filename_index
 import tests.support.fixture_builder
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_encode_paths_block():

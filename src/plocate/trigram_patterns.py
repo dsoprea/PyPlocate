@@ -1,11 +1,9 @@
 """Parse search patterns into trigram constraint groups."""
 
 import dataclasses
-import logging
 
 import plocate.trigram_index
 
-_LOGGER = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass(slots=True)

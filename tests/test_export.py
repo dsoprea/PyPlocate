@@ -1,12 +1,10 @@
 """Tests for plocate.export."""
 
 import json
-import logging
 
 import plocate.database
 import plocate.export
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def _minimal_export_payload(path: str, block_index: int) -> dict[str, object]:

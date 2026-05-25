@@ -1,6 +1,5 @@
 """Build minimal plocate.db files for tests."""
 
-import logging
 import struct
 
 import zstandard
@@ -11,7 +10,6 @@ import plocate.trigram_index
 
 import tests.support.index_builder
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def encode_paths_block(paths: list[str]) -> bytes:

@@ -2,14 +2,12 @@
 
 import collections.abc
 import dataclasses
-import logging
 
 import plocate.errors
 import plocate.indexed_search
 import plocate.patterns
 import plocate.trigram_patterns
 
-_LOGGER = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass(slots=True)

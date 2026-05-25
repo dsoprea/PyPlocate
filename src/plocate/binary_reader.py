@@ -1,13 +1,11 @@
 """Binary file access for plocate databases."""
 
-import logging
 import mmap
 import os
 import typing
 
 import plocate.errors
 
-_LOGGER = logging.getLogger(__name__)
 
 
 class BinaryReader:

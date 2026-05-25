@@ -1,12 +1,9 @@
 """Read and search plocate.db index files."""
 
-import logging
-
 import plocate.database
 import plocate.export
 import plocate.search
 
-_LOGGER = logging.getLogger(__name__)
 
 PlocateDatabase = plocate.database.PlocateDatabase
 ExportOptions = plocate.export.ExportOptions

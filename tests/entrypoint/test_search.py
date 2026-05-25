@@ -1,14 +1,11 @@
 """Tests for plocate.entrypoint.search."""
 
-import logging
-
 import pytest
 
 import plocate.entrypoint.search
 
 import tests.support.updatedb_fixture
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_pl_search_outputs_matches(updatedb_database_path, capsys):

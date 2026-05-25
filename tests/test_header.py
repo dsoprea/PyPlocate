@@ -1,13 +1,11 @@
 """Tests for plocate.header."""
 
-import logging
 import struct
 
 import pytest
 
 import plocate.header
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_header_round_trip():

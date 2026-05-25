@@ -1,11 +1,9 @@
 """Indexed path entries with database metadata."""
 
 import dataclasses
-import logging
 
 import plocate.directory_data
 
-_LOGGER = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass(frozen=True, slots=True)

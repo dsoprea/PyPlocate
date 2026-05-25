@@ -1,12 +1,9 @@
 """Tests for plocate.posting_list."""
 
-import logging
-
 import plocate.posting_list
 
 import tests.support.index_builder
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_decode_single_docid_posting_list():

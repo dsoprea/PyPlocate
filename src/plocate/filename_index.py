@@ -1,12 +1,9 @@
 """Filename index and compressed block decoding."""
 
-import logging
-
 import zstandard
 
 import plocate.errors
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def read_filename_block_offsets(index_bytes: bytes, expected_docid_count: int) -> tuple[int, ...]:

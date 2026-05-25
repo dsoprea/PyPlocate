@@ -1,12 +1,9 @@
 """Tests for plocate.search."""
 
-import logging
-
 import pytest
 
 import plocate.search
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_search_paths_substring():

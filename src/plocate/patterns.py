@@ -3,10 +3,8 @@
 import dataclasses
 import enum
 import fnmatch
-import logging
 import re
 
-_LOGGER = logging.getLogger(__name__)
 
 
 class PatternKind(enum.Enum):

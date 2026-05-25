@@ -1,7 +1,6 @@
 """Search a plocate database for paths."""
 
 import argparse
-import logging
 import sys
 
 import plocate.database
@@ -9,7 +8,6 @@ import plocate.errors
 import plocate.formatting
 import plocate.search
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def _build_parser() -> argparse.ArgumentParser:

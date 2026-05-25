@@ -1,11 +1,9 @@
 """Build trigram hash tables for test plocate databases."""
 
-import logging
 import struct
 
 import plocate.trigram_index
 
-_LOGGER = logging.getLogger(__name__)
 
 EXTRA_HASH_SLOTS = 16
 TRIGRAM_MASK = 0xFFFFFF

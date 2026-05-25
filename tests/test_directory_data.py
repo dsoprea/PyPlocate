@@ -1,10 +1,7 @@
 """Tests for plocate.directory_data."""
 
-import logging
-
 import plocate.directory_data
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_encode_and_parse_directory_time_block():

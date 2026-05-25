@@ -1,7 +1,6 @@
 """Export indexed paths from a plocate database as JSON Lines."""
 
 import argparse
-import logging
 import sys
 
 import plocate.constants
@@ -9,7 +8,6 @@ import plocate.database
 import plocate.errors
 import plocate.export
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def _build_parser() -> argparse.ArgumentParser:

@@ -1,11 +1,8 @@
 """Tests for plocate.formatting."""
 
-import logging
-
 import plocate.formatting
 import plocate.stats
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_format_bytes():

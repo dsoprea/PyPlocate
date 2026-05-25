@@ -1,7 +1,6 @@
 """Tests for plocate.database."""
 
 import io
-import logging
 import os
 
 import pytest
@@ -10,7 +9,6 @@ import plocate.database
 import plocate.errors
 import plocate.search
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_open_minimal_database(minimal_database_path):

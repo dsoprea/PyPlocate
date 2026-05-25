@@ -1,13 +1,11 @@
 """Trigram hash table and posting list access."""
 
 import dataclasses
-import logging
 import struct
 
 import plocate.errors
 import plocate.posting_list
 
-_LOGGER = logging.getLogger(__name__)
 
 TRIGRAM_STRUCT = struct.Struct("<IIQ")
 WILDCARD_UNIGRAM = 0xFF000000

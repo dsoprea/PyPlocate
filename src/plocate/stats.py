@@ -1,12 +1,10 @@
 """Database statistics collection."""
 
 import dataclasses
-import logging
 import typing
 
 import plocate.config
 
-_LOGGER = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass(frozen=True, slots=True)

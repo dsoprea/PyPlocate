@@ -1,10 +1,8 @@
 """Binary header parsing for plocate.db files."""
 
 import dataclasses
-import logging
 import struct
 
-_LOGGER = logging.getLogger(__name__)
 
 PLOCATE_MAGIC = b"\0plocate"
 HEADER_STRUCT = struct.Struct("<8s4I2Q2IQ6Q?7x")

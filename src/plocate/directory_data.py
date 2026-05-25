@@ -3,14 +3,12 @@
 import collections.abc
 import dataclasses
 import io
-import logging
 import struct
 
 import zstandard
 
 import plocate.errors
 
-_LOGGER = logging.getLogger(__name__)
 
 DIRECTORY_TIME_FILE_MARKER = 0
 DIRECTORY_TIME_DIRECTORY_MARKER = 1

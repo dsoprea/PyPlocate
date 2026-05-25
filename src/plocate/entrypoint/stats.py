@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import logging
 import sys
 
 import plocate.constants
@@ -10,7 +9,6 @@ import plocate.database
 import plocate.errors
 import plocate.formatting
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def _build_parser() -> argparse.ArgumentParser:

@@ -1,10 +1,7 @@
 """Tests for plocate.config."""
 
-import logging
-
 import plocate.config
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_parse_configuration_block():

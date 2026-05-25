@@ -1,14 +1,12 @@
 """Tests for plocate.entrypoint.stats."""
 
 import json
-import logging
 import os
 
 import pytest
 
 import plocate.entrypoint.stats
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_pl_stats_human_output(updatedb_database_path, capsys):

@@ -1,11 +1,8 @@
 """Indexed candidate selection using the trigram hash table."""
 
-import logging
-
 import plocate.trigram_index
 import plocate.trigram_patterns
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def _union_sorted_docids(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[int, ...]:

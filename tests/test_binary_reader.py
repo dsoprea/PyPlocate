@@ -1,14 +1,12 @@
 """Tests for plocate.binary_reader."""
 
 import io
-import logging
 
 import pytest
 
 import plocate.binary_reader
 import plocate.errors
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_binary_reader_reads_from_memory():

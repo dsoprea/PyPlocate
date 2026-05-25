@@ -1,6 +1,5 @@
 """Shared pytest fixtures."""
 
-import logging
 import os
 
 import pytest
@@ -9,7 +8,6 @@ import tests.support.fixture_builder
 import tests.support.updatedb_fixture
 import plocate.directory_data
 
-_LOGGER = logging.getLogger(__name__)
 
 UPDATEDB_DATABASE_PATH = tests.support.updatedb_fixture.UPDATEDB_DATABASE_PATH
 UPDATEDB_PYPROJECT_PATTERN = tests.support.updatedb_fixture.UPDATEDB_PYPROJECT_PATTERN

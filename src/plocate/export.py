@@ -4,11 +4,9 @@ import collections.abc
 import dataclasses
 import fnmatch
 import json
-import logging
 
 import plocate.indexed_entry
 
-_LOGGER = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass(frozen=True, slots=True)

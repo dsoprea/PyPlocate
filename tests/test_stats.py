@@ -1,11 +1,8 @@
 """Tests for plocate.stats."""
 
-import logging
-
 import plocate.database
 import plocate.stats
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_collect_statistics(minimal_database_path):

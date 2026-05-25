@@ -1,12 +1,9 @@
 """Tests for plocate.patterns."""
 
-import logging
-
 import pytest
 
 import plocate.patterns
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_unescape_glob_to_plain_string():

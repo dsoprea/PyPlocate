@@ -1,7 +1,6 @@
 """Core plocate.db reader."""
 
 import collections.abc
-import logging
 import os
 import typing
 
@@ -17,7 +16,6 @@ import plocate.indexed_entry
 import plocate.stats
 import plocate.trigram_index
 
-_LOGGER = logging.getLogger(__name__)
 
 
 class PlocateDatabase:

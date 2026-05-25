@@ -1,11 +1,9 @@
 """TurboPFor posting list decoding for plocate databases."""
 
-import logging
 import struct
 
 import plocate.errors
 
-_LOGGER = logging.getLogger(__name__)
 
 _BLOCK_SIZE = 128
 POSTING_LIST_DECODE_SLOP_BYTES = 16

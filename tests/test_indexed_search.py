@@ -1,7 +1,5 @@
 """Tests for indexed plocate search."""
 
-import logging
-
 import pytest
 
 import plocate.database
@@ -10,7 +8,6 @@ import plocate.search
 
 import tests.support.updatedb_fixture
 
-_LOGGER = logging.getLogger(__name__)
 
 
 def test_search_database_uses_trigram_index(updatedb_database_path):
