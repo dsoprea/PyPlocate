@@ -4,6 +4,7 @@ import collections.abc
 import dataclasses
 import logging
 
+import plocate.errors
 import plocate.indexed_search
 import plocate.patterns
 import plocate.trigram_patterns
@@ -20,6 +21,14 @@ class SearchOptions:
     use_regex: bool = False
     extended_regex: bool = False
     limit: int | None = None
+    force_indexed_search: bool = False
+    force_linear_search: bool = False
+
+    def validate_search_mode(self) -> None:
+        """Reject incompatible forced search mode combinations."""
+
+        if self.force_indexed_search and self.force_linear_search:
+            raise ValueError("cannot force both indexed and linear search")
 
     def compile_patterns(self, patterns: tuple[str, ...]) -> list[plocate.patterns.CompiledPattern]:
         """Compile each pattern string using these search options."""
@@ -106,14 +115,20 @@ def _search_database_indexed(
     compiled_patterns: list[plocate.patterns.CompiledPattern],
     search_options: SearchOptions,
     trigram_groups: list[plocate.trigram_patterns.TrigramDisjunction],
+    *,
+    fallback_to_linear: bool = True,
 ) -> collections.abc.Iterator[str]:
     """Use the trigram index to narrow filename blocks before matching."""
 
     trigram_index = database.trigram_index()
     if trigram_index is None:
-        yield from _search_database_linear(database, compiled_patterns, search_options)
+        if fallback_to_linear:
+            yield from _search_database_linear(database, compiled_patterns, search_options)
 
-        return
+            return
+
+        message = "database has no trigram index"
+        raise plocate.errors.PlocateDatabaseError(message)
 
     candidate_docids = plocate.indexed_search.select_candidate_docids(trigram_index, trigram_groups)
     if candidate_docids is None:
@@ -149,7 +164,39 @@ def search_database(
     else:
         search_options = options
 
+    search_options.validate_search_mode()
     compiled_patterns = search_options.compile_patterns(patterns)
+
+    # Force a full scan of every filename block.
+    if search_options.force_linear_search:
+        yield from _search_database_linear(database, compiled_patterns, search_options)
+
+        return
+
+    # Force trigram-index search even when auto mode would scan instead.
+    if search_options.force_indexed_search:
+        if search_options.use_regex:
+            raise ValueError("indexed search cannot be used with regex patterns")
+        if not database.has_trigram_index():
+            message = "database has no trigram index"
+            raise plocate.errors.PlocateDatabaseError(message)
+
+        trigram_groups = plocate.trigram_patterns.parse_search_trigrams(
+            patterns,
+            ignore_case=search_options.ignore_case,
+        )
+        if not trigram_groups:
+            raise ValueError("pattern is too short for indexed search")
+
+        yield from _search_database_indexed(
+            database,
+            compiled_patterns,
+            search_options,
+            trigram_groups,
+            fallback_to_linear=False,
+        )
+
+        return
 
     # Regex searches and databases without an index fall back to a full scan.
     if search_options.use_regex or not database.has_trigram_index():

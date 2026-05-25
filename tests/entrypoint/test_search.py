@@ -42,3 +42,18 @@ def test_pl_search_builds_options():
     assert options.ignore_case is True
     assert options.match_basename is True
     assert options.use_regex is True
+
+
+def test_pl_search_builds_force_search_mode_options():
+    """Translate forced search mode flags into search options."""
+
+    parser = plocate.entrypoint.search.build_parser()
+    indexed_arguments = parser.parse_args(["-d", "/tmp/test.db", "--indexed", "pattern"])
+    indexed_options = plocate.entrypoint.search.build_search_options(indexed_arguments)
+    assert indexed_options.force_indexed_search is True
+    assert indexed_options.force_linear_search is False
+
+    scan_arguments = parser.parse_args(["-d", "/tmp/test.db", "--scan", "pattern"])
+    scan_options = plocate.entrypoint.search.build_search_options(scan_arguments)
+    assert scan_options.force_indexed_search is False
+    assert scan_options.force_linear_search is True

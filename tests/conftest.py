@@ -78,3 +78,15 @@ def directory_timed_database_path(tmp_path, directory_timed_database_bytes: byte
         database_file.write(directory_timed_database_bytes)
 
     return database_path
+
+
+@pytest.fixture
+def truncated_database_path(tmp_path, minimal_database_bytes: bytes) -> str:
+    """Write a truncated copy of the minimal database without a readable trigram index."""
+
+    database_path = os.path.join(str(tmp_path), "truncated.plocate.db")
+    truncated_bytes = minimal_database_bytes[:200]
+    with open(database_path, "wb") as database_file:
+        database_file.write(truncated_bytes)
+
+    return database_path

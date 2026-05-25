@@ -72,6 +72,17 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="treat patterns as extended regular expressions",
     )
+    search_mode_group = parser.add_mutually_exclusive_group()
+    search_mode_group.add_argument(
+        "--indexed",
+        action="store_true",
+        help="force trigram-index search",
+    )
+    search_mode_group.add_argument(
+        "--scan",
+        action="store_true",
+        help="force a full scan of every filename block",
+    )
 
     return parser
 
@@ -86,6 +97,8 @@ def build_search_options(arguments: argparse.Namespace) -> plocate.search.Search
         use_regex=use_regex,
         extended_regex=arguments.regex,
         limit=arguments.limit,
+        force_indexed_search=arguments.indexed,
+        force_linear_search=arguments.scan,
     )
 
     return options
