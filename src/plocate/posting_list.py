@@ -8,6 +8,7 @@ import plocate.errors
 _LOGGER = logging.getLogger(__name__)
 
 BLOCK_SIZE = 128
+POSTING_LIST_DECODE_SLOP_BYTES = 16
 
 BLOCK_TYPE_FOR = 0
 BLOCK_TYPE_PFOR_VB = 1

@@ -147,7 +147,8 @@ class TrigramIndex:
 
         length_bytes = posting_list_length_bytes(self._table_entries, entry)
         encoded = self._reader.read_bytes(entry.offset_bytes, length_bytes)
-        docids = plocate.posting_list.decode_posting_list_docids(encoded, entry.num_docids)
+        decode_buffer = encoded + (b"\x00" * plocate.posting_list.POSTING_LIST_DECODE_SLOP_BYTES)
+        docids = plocate.posting_list.decode_posting_list_docids(decode_buffer, entry.num_docids)
         self._docid_cache[entry.trigram] = docids
 
         return docids
