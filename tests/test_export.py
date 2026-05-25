@@ -25,7 +25,7 @@ def _minimal_export_payload(path: str, block_index: int) -> dict[str, object]:
 
 
 def test_iter_export_records_yields_every_path(minimal_database_path):
-    """Export every indexed path when no include filter is configured."""
+    """Export every indexed path from a synthetic fixture database."""
 
     with plocate.database.PlocateDatabase.open(minimal_database_path) as database:
         record_iterator = plocate.export.iter_export_records(database)
@@ -38,6 +38,18 @@ def test_iter_export_records_yields_every_path(minimal_database_path):
     assert records[0].docid == 0
     assert records[0].block_index == 0
     assert records[2].block_index == 2
+
+
+def test_iter_export_records_yields_updatedb_paths(updatedb_database_path):
+    """Export indexed paths from the updatedb fixture database."""
+
+    with plocate.database.PlocateDatabase.open(updatedb_database_path) as database:
+        record_iterator = plocate.export.iter_export_records(database)
+        records = list(record_iterator)
+    assert len(records) == 104
+    assert records[0].docid == 0
+    assert records[0].check_visibility is True
+    assert any(record.path.endswith("/pyproject.toml") for record in records)
 
 
 def test_iter_export_records_includes_directory_metadata(directory_timed_database_path):

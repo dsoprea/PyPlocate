@@ -6,29 +6,39 @@ import pytest
 
 import plocate.entrypoint.search
 
+import tests.support.updatedb_fixture
+
 _LOGGER = logging.getLogger(__name__)
 
 
-def test_pl_search_outputs_matches(minimal_database_path, capsys):
-    """Print matching paths from a fixture database."""
+def test_pl_search_outputs_matches(updatedb_database_path, capsys):
+    """Print matching paths from the updatedb fixture database."""
 
     with pytest.raises(SystemExit) as exit_info:
         plocate.entrypoint.search.main(
-            [minimal_database_path, ".catalog-repository.yaml"]
+            [
+                updatedb_database_path,
+                tests.support.updatedb_fixture.UPDATEDB_PYPROJECT_PATTERN,
+            ]
         )
     assert exit_info.value.code == 0
-    assert capsys.readouterr().out == "/tmp/example/.catalog-repository.yaml\n"
+    captured = capsys.readouterr()
+    assert "/pyproject.toml" in captured.out
 
 
-def test_pl_search_count_mode(minimal_database_path, capsys):
+def test_pl_search_count_mode(updatedb_database_path, capsys):
     """Print only the number of matches when count mode is enabled."""
 
     with pytest.raises(SystemExit) as exit_info:
         plocate.entrypoint.search.main(
-            [minimal_database_path, "-c", "readme"]
+            [
+                updatedb_database_path,
+                "-c",
+                tests.support.updatedb_fixture.UPDATEDB_PYPROJECT_PATTERN,
+            ]
         )
     assert exit_info.value.code == 0
-    assert capsys.readouterr().out == "1\n"
+    assert int(capsys.readouterr().out.strip()) >= 1
 
 
 def test_pl_search_builds_options():

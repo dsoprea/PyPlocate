@@ -11,28 +11,29 @@ import plocate.entrypoint.stats
 _LOGGER = logging.getLogger(__name__)
 
 
-def test_pl_stats_human_output(minimal_database_path, capsys):
-    """Print human-readable statistics for a fixture database."""
+def test_pl_stats_human_output(updatedb_database_path, capsys):
+    """Print human-readable statistics for the updatedb fixture database."""
 
     with pytest.raises(SystemExit) as exit_info:
-        plocate.entrypoint.stats.main([minimal_database_path])
+        plocate.entrypoint.stats.main([updatedb_database_path])
     assert exit_info.value.code == 0
 
     captured = capsys.readouterr()
-    assert "indexed paths: 3" in captured.out
-    assert "prune_bind_mounts: 0" in captured.out
+    assert "indexed paths: 104" in captured.out
+    assert "prune_bind_mounts:" in captured.out
 
 
-def test_pl_stats_json_output(minimal_database_path, capsys):
-    """Print JSON statistics for a fixture database."""
+def test_pl_stats_json_output(updatedb_database_path, capsys):
+    """Print JSON statistics for the updatedb fixture database."""
 
     with pytest.raises(SystemExit) as exit_info:
-        plocate.entrypoint.stats.main([minimal_database_path, "--json"])
+        plocate.entrypoint.stats.main([updatedb_database_path, "--json"])
     assert exit_info.value.code == 0
 
     payload = json.loads(capsys.readouterr().out)
-    assert payload["path_count"] == 3
-    assert payload["configuration_entries"]["prunepaths"] == ["/tmp"]
+    assert payload["path_count"] == 104
+    assert payload["num_docids"] == 4
+    assert "prunepaths" in payload["configuration_entries"]
 
 
 def test_pl_stats_reports_missing_database(tmp_path, capsys):

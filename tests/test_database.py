@@ -35,12 +35,51 @@ def test_read_configuration_block(minimal_database_path):
 
 
 def test_search_database(minimal_database_path):
-    """Search a fixture database for matching paths."""
+    """Search a synthetic fixture database for matching paths."""
 
     with plocate.database.PlocateDatabase.open(minimal_database_path) as database:
         match_iterator = plocate.search.search_database(database, ".catalog-repository.yaml")
         matches = list(match_iterator)
     assert matches == ["/tmp/example/.catalog-repository.yaml"]
+
+
+def test_open_updatedb_database(updatedb_database_path):
+    """Open the updatedb fixture database and read summary metadata."""
+
+    with plocate.database.PlocateDatabase.open(updatedb_database_path) as database:
+        assert database.has_trigram_index() is True
+        assert database.header.num_docids == 4
+        assert database.header.max_version == 2
+        assert database.header.check_visibility is True
+        statistics = database.statistics()
+    assert statistics.path_count == 104
+
+
+def test_read_updatedb_configuration_block(updatedb_database_path):
+    """Read updatedb configuration entries from the fixture database."""
+
+    with plocate.database.PlocateDatabase.open(updatedb_database_path) as database:
+        entries = database.read_configuration_block()
+    assert [entry.name for entry in entries] == [
+        "prune_bind_mounts",
+        "prunefs",
+        "prunenames",
+        "prunepaths",
+    ]
+
+
+def test_search_updatedb_database(updatedb_database_path):
+    """Search the updatedb fixture database for matching paths."""
+
+    import tests.support.updatedb_fixture
+
+    with plocate.database.PlocateDatabase.open(updatedb_database_path) as database:
+        match_iterator = plocate.search.search_database(
+            database,
+            tests.support.updatedb_fixture.UPDATEDB_PYPROJECT_PATTERN,
+        )
+        matches = list(match_iterator)
+    assert any(match.endswith("/pyproject.toml") for match in matches)
 
 
 def test_iter_indexed_entries_pairs_directory_metadata(directory_timed_database_path):

@@ -6,9 +6,25 @@ import os
 import pytest
 
 import tests.support.fixture_builder
+import tests.support.updatedb_fixture
 import plocate.directory_data
 
 _LOGGER = logging.getLogger(__name__)
+
+UPDATEDB_DATABASE_PATH = tests.support.updatedb_fixture.UPDATEDB_DATABASE_PATH
+UPDATEDB_PYPROJECT_PATTERN = tests.support.updatedb_fixture.UPDATEDB_PYPROJECT_PATTERN
+UPDATEDB_PYC_PATTERN = tests.support.updatedb_fixture.UPDATEDB_PYC_PATTERN
+
+
+@pytest.fixture
+def updatedb_database_path() -> str:
+    """Return the path to the real updatedb fixture under asset/test/."""
+
+    if not os.path.isfile(UPDATEDB_DATABASE_PATH):
+        message = "updatedb fixture missing at {path}".format(path=UPDATEDB_DATABASE_PATH)
+        pytest.fail(message)
+
+    return UPDATEDB_DATABASE_PATH
 
 
 @pytest.fixture

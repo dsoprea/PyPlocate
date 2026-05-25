@@ -26,8 +26,22 @@ def _minimal_export_payload(path: str, block_index: int) -> dict[str, object]:
     return payload
 
 
-def test_pl_export_outputs_jsonl(minimal_database_path, capsys):
-    """Print every indexed path as JSON Lines."""
+def test_pl_export_outputs_jsonl(updatedb_database_path, capsys):
+    """Print indexed paths from the updatedb fixture database as JSON Lines."""
+
+    with pytest.raises(SystemExit) as exit_info:
+        plocate.entrypoint.export.main([updatedb_database_path])
+    assert exit_info.value.code == 0
+
+    lines = capsys.readouterr().out.splitlines()
+    payloads = [json.loads(line) for line in lines]
+    assert len(payloads) == 104
+    assert payloads[0]["check_visibility"] is True
+    assert any(payload["path"].endswith("/pyproject.toml") for payload in payloads)
+
+
+def test_pl_export_outputs_jsonl_from_minimal_database(minimal_database_path, capsys):
+    """Print every indexed path from a synthetic fixture database as JSON Lines."""
 
     with pytest.raises(SystemExit) as exit_info:
         plocate.entrypoint.export.main([minimal_database_path])
