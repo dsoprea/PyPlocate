@@ -1,5 +1,7 @@
 # plocate
 
+[![PyPI version](https://img.shields.io/pypi/v/plocate2)](https://pypi.org/project/plocate2/)
+
 ## Overview
 
 Python library and command-line tools for reading [plocate](https://plocate.sesse.net) database files (`plocate.db`), the default 'locate' implementation of Arch, Debian, Ubuntu, and other Linux distributions.

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "plocate"
+name = "plocate2"
 version = "0.1.0"
 description = "Python library and tools for reading plocate database files"
 readme = "README.md"
@@ -11,6 +11,9 @@ requires-python = ">=3.11"
 dependencies = [
     "zstandard>=0.22.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/dsoprea/PyPlocate"
 
 [project.optional-dependencies]
 dev = [
