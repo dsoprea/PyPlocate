@@ -89,57 +89,53 @@ Reading the database requires permission to open the file. On many systems `/var
 Search via the trigram index on a healthy database (substring or glob patterns):
 
 ```python
-import plocate.database
-import plocate.search
+import plocate
 
-with plocate.database.PlocateDatabase.open("test.db") as database:
-    options = plocate.search.SearchOptions(force_indexed_search=True)
-    for path in plocate.search.search_database(database, "*.py", options=options):
+with plocate.PlocateDatabase.open("test.db") as database:
+    options = plocate.SearchOptions(force_indexed_search=True)
+    for path in plocate.search_database(database, "*.py", options=options):
         print(path)
 ```
 
 Search via a full scan when the on-disk index is unreadable (for example, a truncated database):
 
 ```python
-import plocate.database
-import plocate.search
+import plocate
 
-with plocate.database.PlocateDatabase.open("truncated-plocate.db") as database:
-    options = plocate.search.SearchOptions(force_linear_search=True)
-    for path in plocate.search.search_database(database, "*.py", options=options):
+with plocate.PlocateDatabase.open("truncated-plocate.db") as database:
+    options = plocate.SearchOptions(force_linear_search=True)
+    for path in plocate.search_database(database, "*.py", options=options):
         print(path)
 ```
 
 `search_database` also scans every filename block on healthy databases when the pattern cannot use the index, such as regex searches:
 
 ```python
-import plocate.database
-import plocate.search
+import plocate
 
-options = plocate.search.SearchOptions(use_regex=True)
-with plocate.database.PlocateDatabase.open("test.db") as database:
-    for path in plocate.search.search_database(database, r"\.py$", options=options):
+options = plocate.SearchOptions(use_regex=True)
+with plocate.PlocateDatabase.open("test.db") as database:
+    for path in plocate.search_database(database, r"\.py$", options=options):
         print(path)
 ```
 
 Export indexed records:
 
 ```python
-import plocate.database
-import plocate.export
+import plocate
 
-options = plocate.export.ExportOptions(include_pattern="/tmp/example/*")
-with plocate.database.PlocateDatabase.open("test.db") as database:
-    for record in plocate.export.iter_export_records(database, options=options):
+options = plocate.ExportOptions(include_pattern="/tmp/example/*")
+with plocate.PlocateDatabase.open("test.db") as database:
+    for record in plocate.iter_export_records(database, options=options):
         print(record.to_dict())
 ```
 
 Inspect indexed entries with metadata:
 
 ```python
-import plocate.database
+import plocate
 
-with plocate.database.PlocateDatabase.open("test.db") as database:
+with plocate.PlocateDatabase.open("test.db") as database:
     for entry in database.iter_indexed_entries():
         print(entry.path, entry.docid, entry.directory_time)
 ```
