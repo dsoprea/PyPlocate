@@ -104,6 +104,20 @@ with plocate.PlocateDatabase.open("example.db") as database:
 /var/log/syslog 0 None
 ```
 
+The `plocate.db` format does not store a dedicated "last updated" timestamp. The closest equivalent is the on-disk modification time of the database file itself.
+
+```python
+import plocate
+
+with plocate.PlocateDatabase.open("asset/test/test.db") as database:
+    modification_time = database.file_mtime()
+    print(modification_time)
+```
+
+```
+1779677352.9139218
+```
+
 The package also reads configuration blocks, directory timestamp streams, and trigram posting lists from real `plocate.db` files produced by upstream `updatedb` / `plocate-build`.
 
 ## Usage Via Commandline

@@ -2,6 +2,7 @@
 
 import collections.abc
 import logging
+import os
 import typing
 
 import zstandard
@@ -64,6 +65,17 @@ class PlocateDatabase:
         """Return the on-disk size of the database file in bytes."""
 
         return self._reader.file_size
+
+    def file_mtime(self) -> float:
+        """Return the filesystem modification time for this open database in seconds."""
+
+        if self._path is None:
+            message = "database file modification time requires a filesystem path"
+            raise plocate.errors.PlocateDatabaseError(message)
+
+        stat_result = os.stat(self._path)
+
+        return stat_result.st_mtime
 
     def close(self) -> None:
         """Close the underlying database file."""

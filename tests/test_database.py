@@ -1,5 +1,6 @@
 """Tests for plocate.database."""
 
+import io
 import logging
 import os
 
@@ -92,6 +93,26 @@ def test_iter_indexed_entries_pairs_directory_metadata(directory_timed_database_
     assert indexed_entries[0].directory_time.is_directory is True
     assert indexed_entries[1].directory_time is not None
     assert indexed_entries[1].directory_time.is_directory is False
+
+
+def test_file_mtime(minimal_database_path):
+    """Return the filesystem modification time for an open database file."""
+
+    expected_modification_time = os.stat(minimal_database_path).st_mtime
+    with plocate.database.PlocateDatabase.open(minimal_database_path) as database:
+        modification_time = database.file_mtime()
+    assert modification_time == expected_modification_time
+
+
+def test_file_mtime_requires_path(minimal_database_bytes):
+    """Reject modification time lookup when the database has no filesystem path."""
+
+    database = plocate.database.PlocateDatabase(
+        io.BytesIO(minimal_database_bytes),
+        path=None,
+    )
+    with pytest.raises(plocate.errors.PlocateDatabaseError):
+        database.file_mtime()
 
 
 def test_rejects_invalid_database(tmp_path):
