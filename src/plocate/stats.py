@@ -1,15 +1,18 @@
 """Database statistics collection."""
 
-from __future__ import annotations
+import dataclasses
+import logging
+import typing
 
-from dataclasses import asdict, dataclass
-from typing import Protocol
+import plocate.config
 
-from plocate_db.config import configuration_entries_to_mapping
+_LOGGER = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class DatabaseStatistics:
+    """Summary metrics collected from a plocate database."""
+
     database_path: str | None
     file_size_bytes: int
     version: int
@@ -29,10 +32,16 @@ class DatabaseStatistics:
     configuration_entries: dict[str, list[str]]
 
     def to_dict(self) -> dict[str, object]:
-        return asdict(self)
+        """Return a JSON-serializable mapping of these statistics."""
+
+        mapping = dataclasses.asdict(self)
+
+        return mapping
 
 
-class StatisticsSource(Protocol):
+class StatisticsSource(typing.Protocol):
+    """Minimal database surface needed to collect statistics."""
+
     path: str | None
     file_size: int
     header: object
@@ -43,18 +52,36 @@ class StatisticsSource(Protocol):
 
 
 def compressed_filename_byte_count(offsets: tuple[int, ...], docid_count: int) -> int:
+    """Return the total compressed filename bytes spanned by offsets."""
+
     if docid_count == 0:
         return 0
-    return offsets[-1] - offsets[0]
+
+    byte_count = offsets[-1] - offsets[0]
+
+    return byte_count
 
 
 def count_paths(database: StatisticsSource) -> int:
-    return sum(len(block_paths) for block_paths in database.iter_filename_blocks())
+    """Count every indexed path by walking filename blocks."""
+
+    total = 0
+    blocks = database.iter_filename_blocks()
+    for block_paths in blocks:
+        total += len(block_paths)
+
+    return total
 
 
 def collect_statistics(database: StatisticsSource) -> DatabaseStatistics:
+    """Collect summary statistics from an open plocate database."""
+
     offsets = database.filename_block_offsets()
     header = database.header
+    path_count = count_paths(database)
+    configuration_block = database.read_configuration_block()
+    configuration_entries = plocate.config.configuration_entries_to_mapping(configuration_block)
+    compressed_bytes = compressed_filename_byte_count(offsets, header.num_docids)
 
     return DatabaseStatistics(
         database_path=database.path,
@@ -62,16 +89,16 @@ def collect_statistics(database: StatisticsSource) -> DatabaseStatistics:
         version=header.version,
         max_version=header.max_version,
         num_docids=header.num_docids,
-        path_count=count_paths(database),
+        path_count=path_count,
         hashtable_size=header.hashtable_size,
         extra_ht_slots=header.extra_ht_slots,
         hash_table_offset_bytes=header.hash_table_offset_bytes,
         filename_index_offset_bytes=header.filename_index_offset_bytes,
-        compressed_filename_bytes=compressed_filename_byte_count(offsets, header.num_docids),
+        compressed_filename_bytes=compressed_bytes,
         zstd_dictionary_length_bytes=header.zstd_dictionary_length_bytes,
         directory_data_length_bytes=header.directory_data_length_bytes,
         next_zstd_dictionary_length_bytes=header.next_zstd_dictionary_length_bytes,
         conf_block_length_bytes=header.conf_block_length_bytes,
         check_visibility=header.check_visibility,
-        configuration_entries=configuration_entries_to_mapping(database.read_configuration_block()),
+        configuration_entries=configuration_entries,
     )

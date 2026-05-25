@@ -1,16 +1,19 @@
 """Binary header parsing for plocate.db files."""
 
-from __future__ import annotations
-
+import dataclasses
+import logging
 import struct
-from dataclasses import dataclass
+
+_LOGGER = logging.getLogger(__name__)
 
 PLOCATE_MAGIC = b"\0plocate"
 HEADER_STRUCT = struct.Struct("<8s4I2Q2IQ6Q?7x")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class PlocateHeader:
+    """Fixed-layout header at the start of a plocate.db file."""
+
     magic: bytes
     version: int
     hashtable_size: int
@@ -31,19 +34,30 @@ class PlocateHeader:
 
     @classmethod
     def from_bytes(cls, data: bytes) -> PlocateHeader:
-        if len(data) != HEADER_STRUCT.size:
-            raise ValueError(f"expected {HEADER_STRUCT.size} header bytes, got {len(data)}")
+        """Parse a plocate header from exactly HEADER_STRUCT.size bytes."""
 
+        if len(data) != HEADER_STRUCT.size:
+            message = "expected {expected_size} header bytes, got {actual_size}".format(
+                expected_size=HEADER_STRUCT.size,
+                actual_size=len(data),
+            )
+            raise ValueError(message)
+
+        # Unpack the fixed header and validate magic and version.
         values = HEADER_STRUCT.unpack(data)
         header = cls(*values)
         if header.magic != PLOCATE_MAGIC:
             raise ValueError("magic number is not \\0plocate")
         if header.version not in (0, 1):
-            raise ValueError(f"unsupported database version {header.version}")
+            message = "unsupported database version {version}".format(version=header.version)
+            raise ValueError(message)
+
         return header
 
     def to_bytes(self) -> bytes:
-        return HEADER_STRUCT.pack(
+        """Serialize this header to HEADER_STRUCT.size bytes."""
+
+        packed_bytes = HEADER_STRUCT.pack(
             self.magic,
             self.version,
             self.hashtable_size,
@@ -62,3 +76,5 @@ class PlocateHeader:
             self.conf_block_offset_bytes,
             self.check_visibility,
         )
+
+        return packed_bytes

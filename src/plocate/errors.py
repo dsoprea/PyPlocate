@@ -1,5 +1,9 @@
 """Exceptions raised while reading plocate databases."""
 
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class PlocateDatabaseError(Exception):
     """Base error for plocate database operations."""

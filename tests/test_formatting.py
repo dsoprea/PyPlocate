@@ -1,15 +1,25 @@
-from plocate_db.formatting import format_bytes, format_search_matches, format_statistics_text
-from plocate_db.stats import DatabaseStatistics
+"""Tests for plocate.formatting."""
+
+import logging
+
+import plocate.formatting
+import plocate.stats
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def test_format_bytes():
-    assert format_bytes(512) == "512 B"
-    assert format_bytes(2048) == "2.0 KiB"
-    assert format_bytes(5 * 1024 * 1024) == "5.0 MiB"
+    """Format byte counts using B, KiB, and MiB units."""
+
+    assert plocate.formatting.format_bytes(512) == "512 B"
+    assert plocate.formatting.format_bytes(2048) == "2.0 KiB"
+    assert plocate.formatting.format_bytes(5 * 1024 * 1024) == "5.0 MiB"
 
 
 def test_format_statistics_text():
-    statistics = DatabaseStatistics(
+    """Render database statistics as human-readable text."""
+
+    statistics = plocate.stats.DatabaseStatistics(
         database_path="test.db",
         file_size_bytes=2048,
         version=1,
@@ -29,13 +39,15 @@ def test_format_statistics_text():
         configuration_entries={"prune_bind_mounts": ["0"]},
     )
 
-    text = format_statistics_text(statistics)
+    text = plocate.formatting.format_statistics_text(statistics)
     assert "database: test.db" in text
     assert "indexed paths: 3" in text
     assert "prune_bind_mounts: 0" in text
 
 
 def test_format_search_matches():
-    assert format_search_matches(["/a", "/b"], use_null_separator=False) == "/a\n/b\n"
-    assert format_search_matches(["/a"], use_null_separator=True) == "/a\0"
-    assert format_search_matches([], use_null_separator=False) == ""
+    """Format search matches with newline or NUL separators."""
+
+    assert plocate.formatting.format_search_matches(["/a", "/b"], use_null_separator=False) == "/a\n/b\n"
+    assert plocate.formatting.format_search_matches(["/a"], use_null_separator=True) == "/a\0"
+    assert plocate.formatting.format_search_matches([], use_null_separator=False) == ""

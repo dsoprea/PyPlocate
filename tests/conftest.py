@@ -1,17 +1,21 @@
 """Shared pytest fixtures."""
 
-from __future__ import annotations
-
-from pathlib import Path
+import logging
+import os
 
 import pytest
 
-from tests.support.fixture_builder import build_minimal_database_bytes
+import tests.support.fixture_builder
+import plocate.directory_data
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @pytest.fixture
 def minimal_database_bytes() -> bytes:
-    return build_minimal_database_bytes(
+    """Return bytes for a minimal plocate database with sample paths."""
+
+    database_bytes = tests.support.fixture_builder.build_minimal_database_bytes(
         [
             "/tmp/example/.catalog-repository.yaml",
             "/tmp/example/readme.txt",
@@ -23,9 +27,54 @@ def minimal_database_bytes() -> bytes:
         },
     )
 
+    return database_bytes
+
 
 @pytest.fixture
-def minimal_database_path(tmp_path: Path, minimal_database_bytes: bytes) -> Path:
-    database_path = tmp_path / "minimal.plocate.db"
-    database_path.write_bytes(minimal_database_bytes)
+def minimal_database_path(tmp_path, minimal_database_bytes: bytes) -> str:
+    """Write the minimal database bytes to a temporary file and return its path."""
+
+    database_path = os.path.join(str(tmp_path), "minimal.plocate.db")
+    with open(database_path, "wb") as database_file:
+        database_file.write(minimal_database_bytes)
+
+    return database_path
+
+
+@pytest.fixture
+def directory_timed_database_bytes() -> bytes:
+    """Return bytes for a database with directory timestamp metadata."""
+
+    database_bytes = tests.support.fixture_builder.build_minimal_database_bytes(
+        [
+            "/tmp/example",
+            "/tmp/example/readme.txt",
+            "/var/log/syslog",
+        ],
+        configuration_entries={
+            "prune_bind_mounts": ["0"],
+            "prunepaths": ["/tmp"],
+        },
+        directory_time_entries=[
+            plocate.directory_data.DirectoryTimeEntry(
+                is_directory=True,
+                seconds=1700000000,
+                nanoseconds=123456789,
+            ),
+            plocate.directory_data.DirectoryTimeEntry(is_directory=False),
+            plocate.directory_data.DirectoryTimeEntry(is_directory=False),
+        ],
+    )
+
+    return database_bytes
+
+
+@pytest.fixture
+def directory_timed_database_path(tmp_path, directory_timed_database_bytes: bytes) -> str:
+    """Write the directory-timed database bytes to a temporary file."""
+
+    database_path = os.path.join(str(tmp_path), "directory-timed.plocate.db")
+    with open(database_path, "wb") as database_file:
+        database_file.write(directory_timed_database_bytes)
+
     return database_path

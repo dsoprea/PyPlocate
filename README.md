@@ -1,4 +1,4 @@
-# plocate-db
+# plocate
 
 Python library and command-line tools for reading [plocate](https://github.com/deepin-community/plocate) database files (`plocate.db`).
 
@@ -27,7 +27,11 @@ pl_search -c /var/lib/plocate/plocate.db '*.py'
 pl_search --regex -d test.db 'catalog-repository\\.yaml$'
 ```
 
-## Tests
+## Layout
+
+- Library modules: `src/plocate/`
+- CLI entrypoints: `src/plocate/entrypoint/` (`pl_stats`, `pl_search`)
+- Tests mirror library paths under `tests/`
 
 ```bash
 pip install -e ".[dev]"
@@ -39,7 +43,7 @@ Reading the database requires permission to open the file. On many systems `/var
 ## Library
 
 ```python
-from plocate_db import PlocateDatabase, search_database
+from plocate import PlocateDatabase, search_database
 
 with PlocateDatabase.open("test.db") as database:
     for path in search_database(database, ".catalog-repository.yaml"):
