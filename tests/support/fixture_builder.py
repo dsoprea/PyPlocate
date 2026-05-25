@@ -7,6 +7,9 @@ import zstandard
 
 import plocate.directory_data
 import plocate.header
+import plocate.trigram_index
+
+import tests.support.index_builder
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,41 +71,45 @@ def build_minimal_database_bytes(
     index_offset = data_offset + len(compressed_block)
     index_bytes = struct.pack("<QQ", data_offset, index_offset)
 
+    hash_table_offset = index_offset + len(index_bytes)
+    hash_table_size = tests.support.index_builder.hash_table_size_for_paths(paths)
+    table_entry_count = hash_table_size + tests.support.index_builder.EXTRA_HASH_SLOTS + 1
+    table_length = table_entry_count * plocate.trigram_index.TRIGRAM_STRUCT.size
+    posting_list_base = hash_table_offset + table_length
+    hash_table_bytes, posting_list_bytes, hash_table_size = \
+        tests.support.index_builder.build_trigram_index_bytes(
+            paths,
+            posting_list_base=posting_list_base,
+        )
+
     # Append optional directory timestamp and configuration blocks after the index.
     directory_data = b""
     directory_data_offset = 0
+    section_offset = posting_list_base + len(posting_list_bytes)
     if directory_time_entries is not None:
         directory_block = plocate.directory_data.encode_directory_time_block(directory_time_entries)
         directory_data = plocate.directory_data.compress_directory_time_block(directory_block)
-        directory_data_offset = index_offset + len(index_bytes)
+        directory_data_offset = section_offset
+        section_offset = directory_data_offset + len(directory_data)
 
     conf_block = b""
     conf_offset = 0
     if configuration_entries is not None:
         conf_block = build_configuration_block(configuration_entries)
-        if directory_data:
-            conf_offset = directory_data_offset + len(directory_data)
-        else:
-            conf_offset = index_offset + len(index_bytes)
+        conf_offset = section_offset
+        section_offset = conf_offset + len(conf_block)
 
-    if directory_data:
-        hash_table_offset = conf_offset + len(conf_block)
-    elif conf_block:
-        hash_table_offset = conf_offset + len(conf_block)
-    else:
-        hash_table_offset = index_offset + len(index_bytes)
-
+    # Serialize the header and concatenate database sections.
     if configuration_entries is not None or directory_time_entries is not None:
         max_version = 2
     else:
         max_version = 1
 
-    # Serialize the header and concatenate database sections.
     header = plocate.header.PlocateHeader(
         magic=plocate.header.PLOCATE_MAGIC,
         version=1,
-        hashtable_size=1,
-        extra_ht_slots=16,
+        hashtable_size=hash_table_size,
+        extra_ht_slots=tests.support.index_builder.EXTRA_HASH_SLOTS,
         num_docids=1,
         hash_table_offset_bytes=hash_table_offset,
         filename_index_offset_bytes=index_offset,
@@ -122,6 +129,8 @@ def build_minimal_database_bytes(
     database_bytes.extend(header.to_bytes())
     database_bytes.extend(compressed_block)
     database_bytes.extend(index_bytes)
+    database_bytes.extend(hash_table_bytes)
+    database_bytes.extend(posting_list_bytes)
     if directory_data:
         database_bytes.extend(directory_data)
     if conf_block:

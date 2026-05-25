@@ -14,6 +14,7 @@ import plocate.filename_index
 import plocate.header
 import plocate.indexed_entry
 import plocate.stats
+import plocate.trigram_index
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +31,8 @@ class PlocateDatabase:
         self._filename_offsets: tuple[int, ...] | None = None
         self._directory_time_entries: tuple[plocate.directory_data.DirectoryTimeEntry, ...] | None = None
         self._directory_time_entries_loaded = False
+        self._trigram_index: plocate.trigram_index.TrigramIndex | None = None
+        self._trigram_index_loaded = False
 
         # Parse the fixed header and prepare decompression.
         header_bytes = self._reader.read_bytes(0, plocate.header.HEADER_STRUCT.size)
@@ -151,6 +154,58 @@ class PlocateDatabase:
 
         return self._directory_time_entries
 
+    def _load_trigram_index(self) -> plocate.trigram_index.TrigramIndex | None:
+        """Return the parsed trigram index when present."""
+
+        if self._trigram_index_loaded:
+            return self._trigram_index
+
+        self._trigram_index_loaded = True
+        hash_table_offset = self.header.hash_table_offset_bytes
+        hash_table_size = self.header.hashtable_size
+        extra_hash_slots = self.header.extra_ht_slots
+        entry_count = hash_table_size + extra_hash_slots + 1
+        table_length = entry_count * plocate.trigram_index.TRIGRAM_STRUCT.size
+        if hash_table_offset + table_length > self.file_size:
+            return None
+
+        # Read and parse the trigram hash table when it is present on disk.
+        table_bytes = self._reader.read_bytes(hash_table_offset, table_length)
+        table_entries = plocate.trigram_index.parse_trigram_table(table_bytes)
+        self._trigram_index = plocate.trigram_index.TrigramIndex(
+            self._reader,
+            table_entries,
+            hash_table_size=hash_table_size,
+            extra_hash_slots=extra_hash_slots,
+        )
+
+        return self._trigram_index
+
+    def has_trigram_index(self) -> bool:
+        """Return whether this database contains a readable trigram index."""
+
+        trigram_index = self._load_trigram_index()
+        has_index = trigram_index is not None
+
+        return has_index
+
+    def trigram_index(self) -> plocate.trigram_index.TrigramIndex | None:
+        """Return the parsed trigram index when present."""
+
+        return self._load_trigram_index()
+
+    def read_filename_block(self, docid: int) -> list[str]:
+        """Return decompressed paths for one filename block docid."""
+
+        offsets = self.filename_block_offsets()
+        start = offsets[docid]
+        end = offsets[docid + 1]
+        compressed = self._reader.read_bytes(start, end - start)
+        assert self._decompressor is not None
+        block_paths = plocate.filename_index.decompress_filename_block(compressed, self._decompressor)
+
+        return block_paths
+
     def iter_filename_blocks(self) -> collections.abc.Iterator[list[str]]:
         """Yield decompressed path lists for each filename block."""
 
@@ -159,10 +214,7 @@ class PlocateDatabase:
 
         docid_indices = range(self.header.num_docids)
         for docid in docid_indices:
-            start = offsets[docid]
-            end = offsets[docid + 1]
-            compressed = self._reader.read_bytes(start, end - start)
-            block_paths = plocate.filename_index.decompress_filename_block(compressed, self._decompressor)
+            block_paths = self.read_filename_block(docid)
 
             yield block_paths
 

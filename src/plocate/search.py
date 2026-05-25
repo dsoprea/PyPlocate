@@ -4,7 +4,9 @@ import collections.abc
 import dataclasses
 import logging
 
+import plocate.indexed_search
 import plocate.patterns
+import plocate.trigram_patterns
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ class SearchOptions:
             compiled_patterns.append(compiled)
 
         return compiled_patterns
+
     def compile_pattern(self, pattern: str) -> plocate.patterns.CompiledPattern:
         """Compile one pattern string using these search options."""
 
@@ -75,6 +78,65 @@ def search_paths(
                 return
 
 
+def _search_database_linear(
+    database,
+    compiled_patterns: list[plocate.patterns.CompiledPattern],
+    search_options: SearchOptions,
+) -> collections.abc.Iterator[str]:
+    """Scan every indexed path and yield matches."""
+
+    path_iterator = database.iter_paths()
+    match_count = 0
+    for path in path_iterator:
+        matched = plocate.patterns.matches_all_patterns(
+            compiled_patterns,
+            path,
+            match_basename=search_options.match_basename,
+            ignore_case=search_options.ignore_case,
+        )
+        if matched:
+            yield path
+            match_count += 1
+            if search_options.limit is not None and match_count >= search_options.limit:
+                return
+
+
+def _search_database_indexed(
+    database,
+    compiled_patterns: list[plocate.patterns.CompiledPattern],
+    search_options: SearchOptions,
+    trigram_groups: list[plocate.trigram_patterns.TrigramDisjunction],
+) -> collections.abc.Iterator[str]:
+    """Use the trigram index to narrow filename blocks before matching."""
+
+    trigram_index = database.trigram_index()
+    if trigram_index is None:
+        yield from _search_database_linear(database, compiled_patterns, search_options)
+
+        return
+
+    candidate_docids = plocate.indexed_search.select_candidate_docids(trigram_index, trigram_groups)
+    if candidate_docids is None:
+        return
+
+    # Verify pattern matches inside each candidate filename block.
+    match_count = 0
+    for docid in candidate_docids:
+        block_paths = database.read_filename_block(docid)
+        for path in block_paths:
+            matched = plocate.patterns.matches_all_patterns(
+                compiled_patterns,
+                path,
+                match_basename=search_options.match_basename,
+                ignore_case=search_options.ignore_case,
+            )
+            if matched:
+                yield path
+                match_count += 1
+                if search_options.limit is not None and match_count >= search_options.limit:
+                    return
+
+
 def search_database(
     database,
     *patterns: str,
@@ -82,7 +144,31 @@ def search_database(
 ) -> collections.abc.Iterator[str]:
     """Search an open plocate database for paths matching every pattern."""
 
-    path_iterator = database.iter_paths()
-    filtered_iterator = search_paths(path_iterator, *patterns, options=options)
+    if options is None:
+        search_options = SearchOptions()
+    else:
+        search_options = options
 
-    yield from filtered_iterator
+    compiled_patterns = search_options.compile_patterns(patterns)
+
+    # Regex searches and databases without an index fall back to a full scan.
+    if search_options.use_regex or not database.has_trigram_index():
+        yield from _search_database_linear(database, compiled_patterns, search_options)
+
+        return
+
+    trigram_groups = plocate.trigram_patterns.parse_search_trigrams(
+        patterns,
+        ignore_case=search_options.ignore_case,
+    )
+    if not trigram_groups:
+        yield from _search_database_linear(database, compiled_patterns, search_options)
+
+        return
+
+    yield from _search_database_indexed(
+        database,
+        compiled_patterns,
+        search_options,
+        trigram_groups,
+    )
