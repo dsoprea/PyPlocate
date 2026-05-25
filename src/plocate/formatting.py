@@ -7,7 +7,7 @@ import plocate.stats
 _LOGGER = logging.getLogger(__name__)
 
 
-def format_bytes(num_bytes: int) -> str:
+def _format_bytes(num_bytes: int) -> str:
     """Format a byte count using B, KiB, MiB, or GiB units."""
 
     if num_bytes < 1024:
@@ -36,7 +36,7 @@ def format_statistics_text(statistics: plocate.stats.DatabaseStatistics) -> str:
 
     lines = [
         "database: {database_path}".format(database_path=statistics.database_path),
-        "file size: {file_size}".format(file_size=format_bytes(statistics.file_size_bytes)),
+        "file size: {file_size}".format(file_size=_format_bytes(statistics.file_size_bytes)),
         "version: {version}".format(version=statistics.version),
         "max version: {max_version}".format(max_version=statistics.max_version),
         "filename blocks: {num_docids}".format(num_docids=statistics.num_docids),
@@ -50,19 +50,19 @@ def format_statistics_text(statistics: plocate.stats.DatabaseStatistics) -> str:
             filename_index_offset_bytes=statistics.filename_index_offset_bytes,
         ),
         "compressed filename bytes: {compressed_filename_bytes}".format(
-            compressed_filename_bytes=format_bytes(statistics.compressed_filename_bytes),
+            compressed_filename_bytes=_format_bytes(statistics.compressed_filename_bytes),
         ),
         "zstd dictionary bytes: {zstd_dictionary_length_bytes}".format(
-            zstd_dictionary_length_bytes=format_bytes(statistics.zstd_dictionary_length_bytes),
+            zstd_dictionary_length_bytes=_format_bytes(statistics.zstd_dictionary_length_bytes),
         ),
         "directory data bytes: {directory_data_length_bytes}".format(
-            directory_data_length_bytes=format_bytes(statistics.directory_data_length_bytes),
+            directory_data_length_bytes=_format_bytes(statistics.directory_data_length_bytes),
         ),
         "next zstd dictionary bytes: {next_zstd_dictionary_length_bytes}".format(
-            next_zstd_dictionary_length_bytes=format_bytes(statistics.next_zstd_dictionary_length_bytes),
+            next_zstd_dictionary_length_bytes=_format_bytes(statistics.next_zstd_dictionary_length_bytes),
         ),
         "configuration block bytes: {conf_block_length_bytes}".format(
-            conf_block_length_bytes=format_bytes(statistics.conf_block_length_bytes),
+            conf_block_length_bytes=_format_bytes(statistics.conf_block_length_bytes),
         ),
         "check visibility: {check_visibility}".format(check_visibility=statistics.check_visibility),
     ]

@@ -87,8 +87,8 @@ def build_minimal_database_bytes(
     directory_data_offset = 0
     section_offset = posting_list_base + len(posting_list_bytes)
     if directory_time_entries is not None:
-        directory_block = plocate.directory_data.encode_directory_time_block(directory_time_entries)
-        directory_data = plocate.directory_data.compress_directory_time_block(directory_block)
+        directory_block = plocate.directory_data._encode_directory_time_block(directory_time_entries)
+        directory_data = plocate.directory_data._compress_directory_time_block(directory_block)
         directory_data_offset = section_offset
         section_offset = directory_data_offset + len(directory_data)
 

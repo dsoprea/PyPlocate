@@ -15,7 +15,7 @@ class TrigramDisjunction:
     trigram_alternatives: list[int]
 
 
-def read_unigram(pattern: str, start: int) -> tuple[int, int]:
+def _read_unigram(pattern: str, start: int) -> tuple[int, int]:
     """Read one pattern byte or wildcard marker from pattern."""
 
     if start >= len(pattern):
@@ -47,22 +47,22 @@ def read_unigram(pattern: str, start: int) -> tuple[int, int]:
     return ord(character), 1
 
 
-def read_trigram(pattern: str, start: int) -> int:
+def _read_trigram(pattern: str, start: int) -> int:
     """Read one trigram value from pattern starting at start."""
 
-    first_value, first_length = read_unigram(pattern, start)
+    first_value, first_length = _read_unigram(pattern, start)
     if first_value in (
         plocate.trigram_index.WILDCARD_UNIGRAM,
         plocate.trigram_index.PREMATURE_END_UNIGRAM,
     ):
         return first_value
-    second_value, second_length = read_unigram(pattern, start + first_length)
+    second_value, second_length = _read_unigram(pattern, start + first_length)
     if second_value in (
         plocate.trigram_index.WILDCARD_UNIGRAM,
         plocate.trigram_index.PREMATURE_END_UNIGRAM,
     ):
         return second_value
-    third_value, _third_length = read_unigram(pattern, start + first_length + second_length)
+    third_value, _third_length = _read_unigram(pattern, start + first_length + second_length)
     if third_value in (
         plocate.trigram_index.WILDCARD_UNIGRAM,
         plocate.trigram_index.PREMATURE_END_UNIGRAM,
@@ -108,7 +108,7 @@ def _expand_trigram_case_alternatives(pattern: str, start: int) -> list[int]:
     return sorted_alternatives
 
 
-def parse_trigrams(pattern: str, *, ignore_case: bool) -> list[TrigramDisjunction]:
+def _parse_trigrams(pattern: str, *, ignore_case: bool) -> list[TrigramDisjunction]:
     """Break pattern into trigram AND-groups used for indexed search."""
 
     if ignore_case:
@@ -117,10 +117,10 @@ def parse_trigrams(pattern: str, *, ignore_case: bool) -> list[TrigramDisjunctio
     disjunctions: list[TrigramDisjunction] = []
     index = 0
     while index < len(pattern):
-        unigram_value, unigram_length = read_unigram(pattern, index)
+        unigram_value, unigram_length = _read_unigram(pattern, index)
         if unigram_length == 0:
             break
-        trigram_value = read_trigram(pattern, index)
+        trigram_value = _read_trigram(pattern, index)
         if trigram_value in (
             plocate.trigram_index.WILDCARD_UNIGRAM,
             plocate.trigram_index.PREMATURE_END_UNIGRAM,
@@ -159,7 +159,7 @@ def parse_search_trigrams(patterns: tuple[str, ...], *, ignore_case: bool) -> li
 
     combined_groups: list[TrigramDisjunction] = []
     for pattern in patterns:
-        pattern_groups = parse_trigrams(pattern, ignore_case=ignore_case)
+        pattern_groups = _parse_trigrams(pattern, ignore_case=ignore_case)
         combined_groups.extend(pattern_groups)
 
     return combined_groups

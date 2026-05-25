@@ -39,7 +39,7 @@ class DatabaseStatistics:
         return mapping
 
 
-class StatisticsSource(typing.Protocol):
+class _StatisticsSource(typing.Protocol):
     """Minimal database surface needed to collect statistics."""
 
     path: str | None
@@ -51,7 +51,7 @@ class StatisticsSource(typing.Protocol):
     def read_configuration_block(self): ...
 
 
-def compressed_filename_byte_count(offsets: tuple[int, ...], docid_count: int) -> int:
+def _compressed_filename_byte_count(offsets: tuple[int, ...], docid_count: int) -> int:
     """Return the total compressed filename bytes spanned by offsets."""
 
     if docid_count == 0:
@@ -62,7 +62,7 @@ def compressed_filename_byte_count(offsets: tuple[int, ...], docid_count: int) -
     return byte_count
 
 
-def count_paths(database: StatisticsSource) -> int:
+def _count_paths(database: _StatisticsSource) -> int:
     """Count every indexed path by walking filename blocks."""
 
     total = 0
@@ -73,15 +73,15 @@ def count_paths(database: StatisticsSource) -> int:
     return total
 
 
-def collect_statistics(database: StatisticsSource) -> DatabaseStatistics:
+def collect_statistics(database: _StatisticsSource) -> DatabaseStatistics:
     """Collect summary statistics from an open plocate database."""
 
     offsets = database.filename_block_offsets()
     header = database.header
-    path_count = count_paths(database)
+    path_count = _count_paths(database)
     configuration_block = database.read_configuration_block()
     configuration_entries = plocate.config.configuration_entries_to_mapping(configuration_block)
-    compressed_bytes = compressed_filename_byte_count(offsets, header.num_docids)
+    compressed_bytes = _compressed_filename_byte_count(offsets, header.num_docids)
 
     return DatabaseStatistics(
         database_path=database.path,

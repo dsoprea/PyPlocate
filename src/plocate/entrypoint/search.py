@@ -12,7 +12,7 @@ import plocate.search
 _LOGGER = logging.getLogger(__name__)
 
 
-def build_parser() -> argparse.ArgumentParser:
+def _build_parser() -> argparse.ArgumentParser:
     """Build the pl_search argument parser."""
 
     parser = argparse.ArgumentParser(description="Search for paths in a plocate database.")
@@ -82,7 +82,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def build_search_options(arguments: argparse.Namespace) -> plocate.search.SearchOptions:
+def _build_search_options(arguments: argparse.Namespace) -> plocate.search.SearchOptions:
     """Translate parsed CLI arguments into search options."""
 
     use_regex = arguments.regexp or arguments.regex
@@ -102,9 +102,9 @@ def build_search_options(arguments: argparse.Namespace) -> plocate.search.Search
 def main(argv: list[str] | None = None) -> None:
     """Parse argv, search the database, and print matches or a count."""
 
-    parser = build_parser()
+    parser = _build_parser()
     arguments = parser.parse_args(argv)
-    options = build_search_options(arguments)
+    options = _build_search_options(arguments)
 
     # Open the database and collect matching paths.
     try:

@@ -57,7 +57,7 @@ class SearchOptions:
         return compiled
 
 
-def search_paths(
+def _search_paths(
     paths: collections.abc.Iterator[str],
     *patterns: str,
     options: SearchOptions | None = None,

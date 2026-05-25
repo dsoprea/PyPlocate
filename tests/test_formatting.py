@@ -11,9 +11,9 @@ _LOGGER = logging.getLogger(__name__)
 def test_format_bytes():
     """Format byte counts using B, KiB, and MiB units."""
 
-    assert plocate.formatting.format_bytes(512) == "512 B"
-    assert plocate.formatting.format_bytes(2048) == "2.0 KiB"
-    assert plocate.formatting.format_bytes(5 * 1024 * 1024) == "5.0 MiB"
+    assert plocate.formatting._format_bytes(512) == "512 B"
+    assert plocate.formatting._format_bytes(2048) == "2.0 KiB"
+    assert plocate.formatting._format_bytes(5 * 1024 * 1024) == "5.0 MiB"
 
 
 def test_format_statistics_text():

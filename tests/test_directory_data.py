@@ -18,8 +18,8 @@ def test_encode_and_parse_directory_time_block():
         ),
         plocate.directory_data.DirectoryTimeEntry(is_directory=False),
     ]
-    block_bytes = plocate.directory_data.encode_directory_time_block(entries)
-    compressed = plocate.directory_data.compress_directory_time_block(block_bytes)
+    block_bytes = plocate.directory_data._encode_directory_time_block(entries)
+    compressed = plocate.directory_data._compress_directory_time_block(block_bytes)
     decompressed = plocate.directory_data.decompress_directory_data_bytes(compressed)
     parsed_entries = plocate.directory_data.parse_directory_time_entries(decompressed)
     assert parsed_entries == tuple(entries)

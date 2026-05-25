@@ -30,7 +30,7 @@ class CompiledPattern:
     regular_expression: re.Pattern[str] | None = None
 
 
-def unescape_glob_to_plain_string(pattern: str) -> str:
+def _unescape_glob_to_plain_string(pattern: str) -> str:
     """Remove backslash escapes from a literal substring pattern."""
 
     plain_characters: list[str] = []
@@ -92,7 +92,7 @@ def compile_pattern(
             value=glob_pattern,
         )
 
-    plain_pattern = unescape_glob_to_plain_string(pattern)
+    plain_pattern = _unescape_glob_to_plain_string(pattern)
 
     return CompiledPattern(
         original=pattern,
@@ -116,7 +116,7 @@ def _glob_match(pattern: str, haystack: str, *, ignore_case: bool) -> bool:
     return matched
 
 
-def matches_pattern(compiled_pattern: CompiledPattern, haystack: str, *, ignore_case: bool = False) -> bool:
+def _matches_pattern(compiled_pattern: CompiledPattern, haystack: str, *, ignore_case: bool = False) -> bool:
     """Return whether haystack matches one compiled pattern."""
 
     if compiled_pattern.kind == PatternKind.SUBSTRING:
@@ -161,7 +161,7 @@ def matches_all_patterns(
             haystack = path
 
     for pattern in patterns:
-        matched = matches_pattern(pattern, haystack, ignore_case=ignore_case)
+        matched = _matches_pattern(pattern, haystack, ignore_case=ignore_case)
         if not matched:
             return False
 

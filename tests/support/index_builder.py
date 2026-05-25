@@ -90,26 +90,26 @@ def _next_prime(minimum_size: int) -> int:
 def _create_hash_table(
     trigram_docids: dict[int, tuple[int, ...]],
     hash_table_size: int,
-) -> list[plocate.trigram_index.TrigramEntry]:
+) -> list[plocate.trigram_index._TrigramEntry]:
     """Build an open-addressed trigram hash table."""
 
     slot_count = hash_table_size + EXTRA_HASH_SLOTS + 1
     table_entries = [
-        plocate.trigram_index.TrigramEntry(trigram=0xFFFFFFFF, num_docids=0, offset_bytes=0)
+        plocate.trigram_index._TrigramEntry(trigram=0xFFFFFFFF, num_docids=0, offset_bytes=0)
         for _slot_index in range(slot_count)
     ]
     sorted_trigrams = sorted(trigram_docids)
     for trigram in sorted_trigrams:
         docids = trigram_docids[trigram]
-        pending_entry = plocate.trigram_index.TrigramEntry(
+        pending_entry = plocate.trigram_index._TrigramEntry(
             trigram=trigram,
             num_docids=len(docids),
             offset_bytes=0,
         )
-        bucket = plocate.trigram_index.hash_trigram(trigram, hash_table_size)
+        bucket = plocate.trigram_index._hash_trigram(trigram, hash_table_size)
         distance = 0
         while table_entries[bucket].num_docids != 0:
-            other_distance = bucket - plocate.trigram_index.hash_trigram(
+            other_distance = bucket - plocate.trigram_index._hash_trigram(
                 table_entries[bucket].trigram,
                 hash_table_size,
             )
@@ -164,7 +164,7 @@ def build_trigram_index_bytes(
     for entry_index in range(len(table_entries) - 1):
         entry = table_entries[entry_index]
         absolute_offset = posting_list_base + len(posting_lists)
-        table_entries[entry_index] = plocate.trigram_index.TrigramEntry(
+        table_entries[entry_index] = plocate.trigram_index._TrigramEntry(
             trigram=entry.trigram,
             num_docids=entry.num_docids,
             offset_bytes=absolute_offset,
@@ -174,7 +174,7 @@ def build_trigram_index_bytes(
         posting_lists.extend(encoded_lists[entry.trigram])
 
     sentinel_offset = posting_list_base + len(posting_lists)
-    table_entries[-1] = plocate.trigram_index.TrigramEntry(
+    table_entries[-1] = plocate.trigram_index._TrigramEntry(
         trigram=0,
         num_docids=0,
         offset_bytes=sentinel_offset,

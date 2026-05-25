@@ -40,7 +40,7 @@ def test_compressed_filename_byte_count():
     """Compute compressed filename bytes from block offsets."""
 
     offsets = (100, 150, 220)
-    byte_count = plocate.stats.compressed_filename_byte_count(offsets, 2)
+    byte_count = plocate.stats._compressed_filename_byte_count(offsets, 2)
     assert byte_count == 120
 
 
@@ -48,7 +48,7 @@ def test_count_paths(minimal_database_path):
     """Count indexed paths in a synthetic fixture database."""
 
     with plocate.database.PlocateDatabase.open(minimal_database_path) as database:
-        path_count = plocate.stats.count_paths(database)
+        path_count = plocate.stats._count_paths(database)
         assert path_count == 3
 
 
@@ -56,5 +56,5 @@ def test_count_paths_in_updatedb_database(updatedb_database_path):
     """Count indexed paths in the updatedb fixture database."""
 
     with plocate.database.PlocateDatabase.open(updatedb_database_path) as database:
-        path_count = plocate.stats.count_paths(database)
+        path_count = plocate.stats._count_paths(database)
         assert path_count == 104

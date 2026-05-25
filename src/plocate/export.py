@@ -80,7 +80,7 @@ class ExportOptions:
     include_pattern: str | None = None
 
 
-def path_matches_include_pattern(path: str, include_pattern: str) -> bool:
+def _path_matches_include_pattern(path: str, include_pattern: str) -> bool:
     """Return whether path matches an fnmatch include pattern."""
 
     matched = fnmatch.fnmatch(path, include_pattern)
@@ -104,7 +104,7 @@ def iter_export_records(
     indexed_entry_iterator = database.iter_indexed_entries()
     for indexed_entry in indexed_entry_iterator:
         if export_options.include_pattern is not None:
-            matched = path_matches_include_pattern(indexed_entry.path, export_options.include_pattern)
+            matched = _path_matches_include_pattern(indexed_entry.path, export_options.include_pattern)
             if not matched:
                 continue
 

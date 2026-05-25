@@ -12,7 +12,7 @@ import plocate.export
 _LOGGER = logging.getLogger(__name__)
 
 
-def build_parser() -> argparse.ArgumentParser:
+def _build_parser() -> argparse.ArgumentParser:
     """Build the pl_export argument parser."""
 
     parser = argparse.ArgumentParser(description="Export indexed paths from a plocate database as JSON Lines.")
@@ -33,7 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def build_export_options(arguments: argparse.Namespace) -> plocate.export.ExportOptions:
+def _build_export_options(arguments: argparse.Namespace) -> plocate.export.ExportOptions:
     """Translate parsed CLI arguments into export options."""
 
     options = plocate.export.ExportOptions(
@@ -46,9 +46,9 @@ def build_export_options(arguments: argparse.Namespace) -> plocate.export.Export
 def main(argv: list[str] | None = None) -> None:
     """Parse argv and print indexed paths as JSON Lines."""
 
-    parser = build_parser()
+    parser = _build_parser()
     arguments = parser.parse_args(argv)
-    options = build_export_options(arguments)
+    options = _build_export_options(arguments)
 
     # Open the database and stream matching export records.
     try:

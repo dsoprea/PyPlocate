@@ -17,7 +17,7 @@ def test_search_paths_substring():
         "/tmp/example/readme.txt",
     ]
     path_iterator = iter(paths)
-    matches = list(plocate.search.search_paths(path_iterator, ".catalog-repository.yaml"))
+    matches = list(plocate.search._search_paths(path_iterator, ".catalog-repository.yaml"))
     assert matches == ["/tmp/example/.catalog-repository.yaml"]
 
 
@@ -27,7 +27,7 @@ def test_search_paths_respects_limit():
     paths = ["/a/one.txt", "/a/two.txt", "/a/three.txt"]
     options = plocate.search.SearchOptions(limit=2)
     path_iterator = iter(paths)
-    matches = list(plocate.search.search_paths(path_iterator, ".txt", options=options))
+    matches = list(plocate.search._search_paths(path_iterator, ".txt", options=options))
     assert matches == ["/a/one.txt", "/a/two.txt"]
 
 
@@ -36,4 +36,4 @@ def test_search_paths_requires_patterns():
 
     with pytest.raises(ValueError, match="at least one search pattern"):
         path_iterator = iter(["/a"])
-        list(plocate.search.search_paths(path_iterator))
+        list(plocate.search._search_paths(path_iterator))

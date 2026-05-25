@@ -15,7 +15,7 @@ PREMATURE_END_UNIGRAM = 0xFF000001
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
-class TrigramEntry:
+class _TrigramEntry:
     """One trigram hash table slot."""
 
     trigram: int
@@ -23,7 +23,7 @@ class TrigramEntry:
     offset_bytes: int
 
 
-def hash_trigram(trigram: int, hash_table_size: int) -> int:
+def _hash_trigram(trigram: int, hash_table_size: int) -> int:
     """Hash one trigram value into a hash table bucket."""
 
     crc = trigram & 0xFFFFFFFF
@@ -38,7 +38,7 @@ def hash_trigram(trigram: int, hash_table_size: int) -> int:
     return bucket
 
 
-def parse_trigram_table(table_bytes: bytes) -> tuple[TrigramEntry, ...]:
+def parse_trigram_table(table_bytes: bytes) -> tuple[_TrigramEntry, ...]:
     """Parse contiguous trigram hash table bytes."""
 
     if len(table_bytes) % TRIGRAM_STRUCT.size != 0:
@@ -48,14 +48,14 @@ def parse_trigram_table(table_bytes: bytes) -> tuple[TrigramEntry, ...]:
         )
         raise plocate.errors.PlocateFormatError(message)
 
-    entries: list[TrigramEntry] = []
+    entries: list[_TrigramEntry] = []
     entry_count = len(table_bytes) // TRIGRAM_STRUCT.size
     for entry_index in range(entry_count):
         trigram, num_docids, offset_bytes = TRIGRAM_STRUCT.unpack_from(
             table_bytes,
             entry_index * TRIGRAM_STRUCT.size,
         )
-        entry = TrigramEntry(
+        entry = _TrigramEntry(
             trigram=trigram,
             num_docids=num_docids,
             offset_bytes=offset_bytes,
@@ -65,15 +65,15 @@ def parse_trigram_table(table_bytes: bytes) -> tuple[TrigramEntry, ...]:
     return tuple(entries)
 
 
-def find_trigram_entry(
-    table_entries: tuple[TrigramEntry, ...],
+def _find_trigram_entry(
+    table_entries: tuple[_TrigramEntry, ...],
     trigram: int,
     hash_table_size: int,
     extra_hash_slots: int,
-) -> TrigramEntry | None:
+) -> _TrigramEntry | None:
     """Look up one trigram in a parsed hash table."""
 
-    bucket = hash_trigram(trigram, hash_table_size)
+    bucket = _hash_trigram(trigram, hash_table_size)
     probe_limit = extra_hash_slots + 1
     for probe_index in range(probe_limit + 1):
         entry = table_entries[bucket + probe_index]
@@ -83,9 +83,9 @@ def find_trigram_entry(
     return None
 
 
-def posting_list_length_bytes(
-    table_entries: tuple[TrigramEntry, ...],
-    entry: TrigramEntry,
+def _posting_list_length_bytes(
+    table_entries: tuple[_TrigramEntry, ...],
+    entry: _TrigramEntry,
 ) -> int:
     """Return the byte length of one posting list using the sentinel offset."""
 
@@ -102,7 +102,7 @@ class TrigramIndex:
     def __init__(
         self,
         reader,
-        table_entries: tuple[TrigramEntry, ...],
+        table_entries: tuple[_TrigramEntry, ...],
         *,
         hash_table_size: int,
         extra_hash_slots: int,
@@ -127,10 +127,10 @@ class TrigramIndex:
 
         return self._extra_hash_slots
 
-    def find_trigram_entry(self, trigram: int) -> TrigramEntry | None:
+    def find_trigram_entry(self, trigram: int) -> _TrigramEntry | None:
         """Return the hash table entry for trigram when present."""
 
-        entry = find_trigram_entry(
+        entry = _find_trigram_entry(
             self._table_entries,
             trigram,
             self._hash_table_size,
@@ -139,13 +139,13 @@ class TrigramIndex:
 
         return entry
 
-    def read_posting_list_docids(self, entry: TrigramEntry) -> tuple[int, ...]:
+    def read_posting_list_docids(self, entry: _TrigramEntry) -> tuple[int, ...]:
         """Decode the docid posting list for one trigram table entry."""
 
         if entry.trigram in self._docid_cache:
             return self._docid_cache[entry.trigram]
 
-        length_bytes = posting_list_length_bytes(self._table_entries, entry)
+        length_bytes = _posting_list_length_bytes(self._table_entries, entry)
         encoded = self._reader.read_bytes(entry.offset_bytes, length_bytes)
         decode_buffer = encoded + (b"\x00" * plocate.posting_list.POSTING_LIST_DECODE_SLOP_BYTES)
         docids = plocate.posting_list.decode_posting_list_docids(decode_buffer, entry.num_docids)

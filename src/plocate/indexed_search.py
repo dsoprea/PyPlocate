@@ -8,7 +8,7 @@ import plocate.trigram_patterns
 _LOGGER = logging.getLogger(__name__)
 
 
-def union_sorted_docids(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[int, ...]:
+def _union_sorted_docids(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[int, ...]:
     """Return the sorted union of two sorted docid tuples."""
 
     merged: list[int] = []
@@ -39,7 +39,7 @@ def union_sorted_docids(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[
     return tuple(merged)
 
 
-def intersect_sorted_docids(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[int, ...]:
+def _intersect_sorted_docids(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[int, ...]:
     """Return the sorted intersection of two sorted docid tuples."""
 
     merged: list[int] = []
@@ -83,7 +83,7 @@ def select_candidate_docids(
             if group_docids is None:
                 group_docids = posting_docids
             else:
-                group_docids = union_sorted_docids(group_docids, posting_docids)
+                group_docids = _union_sorted_docids(group_docids, posting_docids)
 
         if group_docids is None:
             return None
@@ -91,7 +91,7 @@ def select_candidate_docids(
         if candidate_docids is None:
             candidate_docids = group_docids
         else:
-            candidate_docids = intersect_sorted_docids(candidate_docids, group_docids)
+            candidate_docids = _intersect_sorted_docids(candidate_docids, group_docids)
             if not candidate_docids:
                 return tuple()
 

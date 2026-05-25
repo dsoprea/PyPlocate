@@ -26,7 +26,7 @@ class DirectoryTimeEntry:
     nanoseconds: int | None = None
 
 
-def encode_directory_time_entry(entry: DirectoryTimeEntry) -> bytes:
+def _encode_directory_time_entry(entry: DirectoryTimeEntry) -> bytes:
     """Encode one directory timestamp entry for tests and fixtures."""
 
     if not entry.is_directory:
@@ -43,19 +43,19 @@ def encode_directory_time_entry(entry: DirectoryTimeEntry) -> bytes:
     return encoded
 
 
-def encode_directory_time_block(entries: collections.abc.Sequence[DirectoryTimeEntry]) -> bytes:
+def _encode_directory_time_block(entries: collections.abc.Sequence[DirectoryTimeEntry]) -> bytes:
     """Encode a directory timestamp block from ordered entries."""
 
     block_parts: list[bytes] = []
     for entry in entries:
-        encoded_entry = encode_directory_time_entry(entry)
+        encoded_entry = _encode_directory_time_entry(entry)
         block_parts.append(encoded_entry)
     block = b"".join(block_parts)
 
     return block
 
 
-def compress_directory_time_block(block_bytes: bytes) -> bytes:
+def _compress_directory_time_block(block_bytes: bytes) -> bytes:
     """Compress a directory timestamp block using a zstd stream."""
 
     compressor = zstandard.ZstdCompressor()

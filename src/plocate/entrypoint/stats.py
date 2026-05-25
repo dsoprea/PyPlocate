@@ -13,7 +13,7 @@ import plocate.formatting
 _LOGGER = logging.getLogger(__name__)
 
 
-def build_parser() -> argparse.ArgumentParser:
+def _build_parser() -> argparse.ArgumentParser:
     """Build the pl_stats argument parser."""
 
     parser = argparse.ArgumentParser(description="Print statistics about a plocate database.")
@@ -37,7 +37,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> None:
     """Parse argv, collect database statistics, and print them."""
 
-    parser = build_parser()
+    parser = _build_parser()
     arguments = parser.parse_args(argv)
 
     # Open the database and collect summary statistics.
