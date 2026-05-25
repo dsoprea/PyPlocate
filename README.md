@@ -1,8 +1,6 @@
-# plocate
-
 [![PyPI version](https://img.shields.io/pypi/v/plocate2)](https://pypi.org/project/plocate2/)
 
-## Overview
+# Overview
 
 Python library and command-line tools for reading [plocate](https://plocate.sesse.net) database files (`plocate.db`), the default 'locate' implementation of Arch, Debian, Ubuntu, and other Linux distributions.
 
@@ -10,7 +8,7 @@ This can enable an application to have immediate and optimized access to a reaso
 
 This not only requires a Linux system that has *plocate* installed and running, but that you can wait, or manage the reality of having to wait, for the next plocate update before you can see new files.
 
-## Installation
+# Installation
 
 ```bash
 python -m venv .venv
@@ -18,7 +16,7 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-## Usage Via Library
+# Usage Via Library
 
 Examples use the checked-in fixture at `asset/test/test.db` unless noted otherwise. That file is an `updatedb` snapshot of this repository, so paths in the output below are shown relative to the repository root (`./...`).
 
@@ -126,7 +124,7 @@ with plocate.PlocateDatabase.open("asset/test/test.db") as database:
 
 The package also reads configuration blocks, directory timestamp streams, and trigram posting lists from real `plocate.db` files produced by upstream `updatedb` / `plocate-build`.
 
-## Usage Via Commandline
+# Usage Via Commandline
 
 The project is primarily meant to be used as a library. The command-line tools (`pl_stats`, `pl_search`, `pl_export`) are provided for testing, diagnosing, and general convenience; they wrap the same APIs documented above.
 
@@ -268,7 +266,7 @@ Example export row:
 }
 ```
 
-## Layout
+# Layout
 
 - Library modules: `src/plocate/`
 - CLI entrypoints: `src/plocate/entrypoint/` (`pl_stats`, `pl_search`, `pl_export`)
