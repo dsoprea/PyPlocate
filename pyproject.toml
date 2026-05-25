@@ -16,6 +16,10 @@ dependencies = [
 dev = [
     "pytest>=8.0.0",
 ]
+build = [
+    "build",
+    "twine",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
