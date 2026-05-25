@@ -22,11 +22,11 @@ pl_stats --json test.db
 Search for paths:
 
 ```bash
-pl_search -d test.db '.catalog-repository.yaml'
-pl_search -c /var/lib/plocate/plocate.db '*.py'
-pl_search --regex -d test.db 'catalog-repository\\.yaml$'
-pl_search -i -d test.db readme
-pl_search -l 10 -d test.db example
+pl_search test.db '.catalog-repository.yaml'
+pl_search /var/lib/plocate/plocate.db -c '*.py'
+pl_search test.db --regex 'catalog-repository\\.yaml$'
+pl_search test.db -i readme
+pl_search test.db -l 10 example
 ```
 
 `pl_search` uses the database trigram index on healthy `plocate.db` files. Upstream `updatedb` / `plocate-build` always write the hash table and posting lists, so a complete database normally has an index. Substring and glob searches narrow candidate filename blocks through that hash table, then verify matches in those blocks.
@@ -36,16 +36,16 @@ If the file is truncated or header metadata points past EOF, the reader treats t
 Indexed search on a healthy database (typical case):
 
 ```bash
-pl_search -d /var/lib/plocate/plocate.db '*.py'
-pl_search --indexed -d test.db '*.py'
+pl_search /var/lib/plocate/plocate.db '*.py'
+pl_search test.db --indexed '*.py'
 ```
 
 Full-scan fallback when the on-disk index is unreadable (for example, a truncated copy of the same file):
 
 ```bash
 # Same command; pl_search scans all path blocks instead of the hash table.
-pl_search -d truncated-plocate.db '*.py'
-pl_search --scan -d test.db '*.py'
+pl_search truncated-plocate.db '*.py'
+pl_search test.db --scan '*.py'
 ```
 
 Export indexed paths as JSON Lines:

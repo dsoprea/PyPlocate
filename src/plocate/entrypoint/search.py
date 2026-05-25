@@ -4,7 +4,6 @@ import argparse
 import logging
 import sys
 
-import plocate.constants
 import plocate.database
 import plocate.errors
 import plocate.formatting
@@ -18,12 +17,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(description="Search for paths in a plocate database.")
     parser.add_argument(
-        "-d",
-        "--database",
-        default=plocate.constants.DEFAULT_DATABASE_PATH,
-        help="path to plocate.db (default: {default_path})".format(
-            default_path=plocate.constants.DEFAULT_DATABASE_PATH,
-        ),
+        "database",
+        help="path to plocate.db",
     )
     parser.add_argument(
         "patterns",
